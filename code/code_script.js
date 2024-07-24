@@ -3,7 +3,7 @@ async function createFirstChart() {
     const margin = {top: 10, right: 20, bottom: 30, left: 50},
         width = 1000 - margin.left - margin.right,
         height = 800 - margin.top - margin.bottom;
-    const data = await d3.csv("https://nishaj3.github.io/data/gender-wage-gap-vs-gdp-per-capita.csv");
+    const data = await d3.csv("https://raw.githubusercontent.com/nishaj3/nishaj3.github.io/Test/data/gender-wage-gap-vs-gdp-per-capita.csv");
     const year = 2014
     const filteredData = data.filter(function (d) {
         return d.Year == year && d.Population != "" && d.gender_wage_gap != "" && d.GDP_per_capita != "";
