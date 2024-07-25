@@ -405,3 +405,16 @@ function getEntities() {
         "Saint Lucia", "Singapore", "Slovakia", "Slovenia", "South Africa", "South Korea", "Spain", "Sri Lanka",
         "Sweden", "Switzerland", "Taiwan", "Thailand", "Trinidad and Tobago", "Turkey", "United Kingdom", "United States", "Uruguay", "Venezuela", "Vietnam"]
 }
+
+function getPopulation(d) {
+        var pop = 0;
+        pop += d.Population == "" ? 0 : parseInt(d.Population.replace(/[^\d\.\-eE+]/g, ""));
+        pop = Math.round(pop / 1000) / 1000; // convert to milions and round to 3 decimal places
+        return pop;
+    }
+
+    function getGDPperCapita(d) {
+        var gdp = 0;
+        gdp += d.GDP_Per_Capita == "" ? 0 : parseInt(d.GDP_Per_Capita.replace(/[^\d\.\-eE+]/g, ""));
+        return gdp;
+    }
