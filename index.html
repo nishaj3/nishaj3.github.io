@@ -2,41 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CS416 Narrative Visualization: Nisha Janamanchi</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-    <script src="code/code_script.js"></script>
-    <script src="https://code.jquery.com/jquery-2.2.4.min.js"
-            integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-            crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="extra/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3.js Scatter Plot</title>
+    <style>
+        /* Add some basic styling */
+        .axis text {
+            font: 12px sans-serif;
+        }
+        .axis path, .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+        .dot {
+            stroke: #000;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 8px;
+            background: lightsteelblue;
+            border: 1px solid #333;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+    </style>
 </head>
-<body onload='createFirstChart()'>
-<div class="container">
-    <div id="index-slide">
-        <h2>Have you ever been curious what the gender wape gap is in different countries around the world?</h2>
-        <div class="jumbotron">
-            <h4 class="mt-50">
-            </h4>
-            <h4 class="mt-30">
-                This interactive slideshow compares the Gender wape gap per GDP per capita between different countries,
-                the unemployment rate by gender, and the female to male ratio of time devoted to unpaid care work
-            </h4>
-            <div class="mt-30">
-                <em>Data Source: https://ourworldindata.org/</em>
-            </div>
-            <p class="mt-10"><a class="btn btn-primary btn-s" href="slide2.html" role="button">Next</a></p>
-        </div>
-    </div>
-</div>
+<body>
+    <div id="chart"></div>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
