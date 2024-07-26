@@ -23,7 +23,7 @@ var configSpec = {
     },
     {
       "name": "source_0",
-      "url": "nishaj3/nishaj3.github.io/Test/data/gender-wage-gap-vs-gdp-per-capita.csv",
+      "url": "/data/gender-wage-gap-vs-gdp-per-capita.csv",
       "format": {
         "type": "csv",
         "parse": {
