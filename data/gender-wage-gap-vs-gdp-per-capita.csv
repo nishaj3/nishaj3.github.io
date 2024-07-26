@@ -1,4 +1,4 @@
-Entity,Code,Year, gender_wage_gap, GDP_per_capita, PPP (constant 2017 international $),Population,Continent
+Entity,Code,Year, gender_wage_gap, GDP_per_capita,Population,Continent
 Abkhazia,OWID_ABK,2015,,,,Asia
 Afghanistan,AFG,2002,,1280.4631,21378123,
 Afghanistan,AFG,2003,,1292.3335,22733054,
