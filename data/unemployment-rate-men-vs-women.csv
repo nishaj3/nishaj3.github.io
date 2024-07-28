@@ -1,4 +1,4 @@
-Entity,Code,Year, female_unemployment , male_unemployment, Population, Continent
+country,Code,Year, femaleUnemployment , maleUnemployment, population, continent≈
 Abkhazia,OWID_ABK,2015,,,,Asia
 Afghanistan,AFG,1991,10.433,7.435,12238879,
 Afghanistan,AFG,1992,10.427,7.43,13278982,
