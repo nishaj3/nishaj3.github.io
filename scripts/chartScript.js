@@ -21,6 +21,7 @@ d3.csv("data/gender-wage-gap-vs-gdp-per-capita.csv").then((data) => {
   console.log("countries", countries);
   const select = d3.select("#countrySelect");
 
+
   select
     .selectAll("option")
     .data(countries)
@@ -36,7 +37,19 @@ d3.csv("data/gender-wage-gap-vs-gdp-per-capita.csv").then((data) => {
   });
 
   function updateChart(country) {
-    const countryData = data.filter((d) => d.Entity === country);
+    const countryData = data
+      .filter((d) => d.Entity === country && Number(d.Year) === 2015);
+
+    if (countryData.length === 0) {
+      chartSvg.selectAll("*").remove();
+      chartSvg
+        .append("text")
+        .attr("x", widthV3 / 2)
+        .attr("y", heightV3 / 2)
+        .attr("text-anchor", "middle")
+        .text("No data available for this country from 2015 onward.");
+      return;
+    }
 
     const x = d3
       .scaleLinear()
