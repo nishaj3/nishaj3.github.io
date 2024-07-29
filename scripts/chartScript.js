@@ -7,6 +7,7 @@ d3.csv('data/gender-wage-gap-vs-gdp-per-capita.csv').then(function(data) {
   const height = 500 - margin.top - margin.bottom;
 
   const svg = d3.select('#plot3')
+      .select("#visualization")
       .append('svg')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
@@ -28,7 +29,20 @@ d3.csv('data/gender-wage-gap-vs-gdp-per-capita.csv').then(function(data) {
   svg.append('g')
       .call(d3.axisLeft(y));
 
+  const myColor = d3
+    .scaleOrdinal()
+    .domain([
+      "Africa",
+      "Asia",
+      "Europe",
+      "North America",
+      "Oceania",
+      "South America",
+    ])
+    .range(d3.schemeSet2);
+
   const tooltip = d3.select('body').append('div')
+      .select("#visualization")
       .attr('class', 'tooltip')
       .style('opacity', 0)
       .style('position', 'absolute')
@@ -39,14 +53,17 @@ d3.csv('data/gender-wage-gap-vs-gdp-per-capita.csv').then(function(data) {
       .style('padding', '10px');
 
   svg.append('g')
-      .selectAll('dot')
+      .selectAll('circle')
       .data(filteredData)
       .enter()
+      .join("circle")
+      .attr("class", "bubbles")
       .append('circle')
       .attr('cx', d => x(+d[' GDP_per_capita']))
       .attr('cy', d => y(+d[' gender_wage_gap']))
       .attr('r', 3)
-      .style('fill', '#69b3a2')
+      .style('fill', (d) => myColor(d.continent))
+      .style("opacity", "0.7")
       .on('mouseover', function(event, d) {
           tooltip.transition()
               .duration(200)
