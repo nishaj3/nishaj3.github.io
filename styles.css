@@ -22,3 +22,8 @@ html,
   pointer-events: none;
   opacity: 0;
 }
+.tooltip {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  pointer-events: none;
+}

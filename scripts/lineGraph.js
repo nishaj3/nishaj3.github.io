@@ -1,4 +1,4 @@
-const marginLine = { top: 20, right: 30, bottom: 80, left: 60 },
+const marginLine = { top: 10, right: 10, bottom: 80, left: 20 },
   widthLine = 1100 - marginLine.left - marginLine.right,
   heightLine = 500 - marginLine.top - marginLine.bottom;
 

@@ -1,100 +1,78 @@
-const margin = { top: 10, right: 30, bottom: 50, left: 50 },
-  width = 1100 - margin.left - margin.right,
-  height = 600 - margin.top - margin.bottom;
 
-const svg = d3
-  .select("#visualization")
-  .append("svg")
-  .attr("width", width + margin.left + margin.right)
-  .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-  .attr("transform", `translate(${margin.left}, ${margin.top})`);
+// Add a tooltip div to display information
+const tooltip = d3.select("body").append("div")
+  .attr("class", "tooltip")
+  .style("position", "absolute")
+  .style("background-color", "#fff")
+  .style("border", "1px solid #ddd")
+  .style("border-radius", "4px")
+  .style("padding", "10px")
+  .style("visibility", "hidden");
 
-d3.csv("data/gender-wage-gap-vs-gdp-per-capita.csv").then((data) => {
-  const x = d3.scaleLinear().domain([4000, 100000]).range([0, width]);
-  svg
+// Load the data
+d3.csv("data/gender-wage-gap-vs-gdp-per-capita.csv").then(function(data) {
+  // Data processing
+  data.forEach(d => {
+    d[' gender_wage_gap'] = +d[' gender_wage_gap'] || 0;
+    d[' GDP_per_capita'] = +d[' GDP_per_capita'] || 0;
+  });
+
+  // Define the margins and dimensions
+  const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+  const width = 960 - margin.left - margin.right;
+  const height = 500 - margin.top - margin.bottom;
+
+  // Create SVG
+  const svg = d3.select("#plot3")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
     .append("g")
-    .attr("transform", `translate(0, ${height})`)
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Define scales
+  const x = d3.scaleLinear()
+    .domain(d3.extent(data, d => d[' GDP_per_capita'])).nice()
+    .range([0, width]);
+
+  const y = d3.scaleLinear()
+    .domain(d3.extent(data, d => d[' gender_wage_gap'])).nice()
+    .range([height, 0]);
+
+  // Add X axis
+  svg.append("g")
+    .attr("class", "x-axis")
+    .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(x));
 
-  const y = d3.scaleLinear().domain([-20, 40]).range([height, 0]);
-  svg.append("g").call(d3.axisLeft(y));
+  // Add Y axis
+  svg.append("g")
+    .attr("class", "y-axis")
+    .call(d3.axisLeft(y));
 
-  const z = d3.scaleSqrt().domain([200000, 1400000000]).range([4, 50]);
-
-  const myColor = d3
-    .scaleOrdinal()
-    .domain([
-      "Africa",
-      "Asia",
-      "Europe",
-      "North America",
-      "Oceania",
-      "South America",
-    ])
-    .range(d3.schemeSet2);
-
-  const tooltip = d3
-    .select("#visualization")
-    .append("div")
-    .style("opacity", 0)
-    .attr("class", "tooltip")
-    .style("background-color", "white")
-    .style("border", "solid")
-    .style("border-width", "2px")
-    .style("border-radius", "5px")
-    .style("padding", "10px")
-    .style("position", "absolute");
-
-  const mouseover = function (event, d) {
-    tooltip.style("opacity", 1);
-    d3.select(this).style("stroke", "black").style("opacity", 1);
-  };
-  const mousemove = function (event, d) {
-    tooltip
-      .html(
-        `Country: ${d.country}<br>GDP Per Capita: ${d.GDP_per_capita}%<br>Gender Wage Gap: ${d.gender_wage_gap}%`
-      )
-      .style("left", event.pageX + 10 + "px")
-      .style("top", event.pageY - 30 + "px");
-  };
-  const mouseleave = function (event, d) {
-    tooltip.style("opacity", 0);
-    d3.select(this).style("stroke", "none").style("opacity", 0.8);
-  };
-
-  svg
-    .append("g")
-    .selectAll("circle")
+  // Add dots
+  svg.selectAll("dot")
     .data(data)
-    .join("circle")
-    .attr("class", "bubbles")
-    .attr("cx", (d) => x(d.GDP_per_capita))
-    .attr("cy", (d) => y(d.gender_wage_gap))
-    .attr("r", 0)
-    .style("fill", (d) => myColor(d.continent))
-    .style("opacity", "0.7")
-    .attr("stroke", "white")
-    .attr("margin", "10px")
-    .on("mouseover", mouseover)
-    .on("mousemove", mousemove)
-    .on("mouseleave", mouseleave)
-    .transition()
-    .duration(1000)
-    .attr("r", (d) => z(d.population));
-
-  // Add country names
-  svg
-    .append("g")
-    .selectAll("text")
-    .data(data)
-    .join("text")
-    .attr("x", (d) => x(d.GDP_per_capita))
-    .attr("y", (d) => y(d.gender_wage_gap))
-    .text((d) => d.country)
-    .attr("font-size", "8px")
-    .attr("fill", (d) => myColor(d.continent))
-    .attr("text-anchor", "top")
-    .attr("dy", ".35em")
-    .style("pointer-events", "none");
+    .enter().append("circle")
+    .attr("r", 5)
+    .attr("cx", d => x(d[' GDP_per_capita']))
+    .attr("cy", d => y(d[' gender_wage_gap']))
+    .style("fill", "#69b3a2")
+    .style("stroke", "black")
+    .on("mouseover", function(event, d) {
+      tooltip.html(`
+        <strong>Country:</strong> ${d.Entity}<br/>
+        <strong>Year:</strong> ${d.Year}<br/>
+        <strong>Wage Gap:</strong> ${d[' gender_wage_gap']}<br/>
+        <strong>GDP per Capita:</strong> ${d[' GDP_per_capita']}
+      `)
+      .style("visibility", "visible");
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("top", (event.pageY + 5) + "px")
+        .style("left", (event.pageX + 5) + "px");
+    })
+    .on("mouseout", function() {
+      tooltip.style("visibility", "hidden");
+    });
 });
