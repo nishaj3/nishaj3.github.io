@@ -1,112 +1,115 @@
-const marginV3 = { top: 20, right: 30, bottom: 50, left: 60 },
-  widthV3 = 1100 - marginV3.left - marginV3.right,
-  heightV3 = 200 - marginV3.top - marginV3.bottom;
+const margin = { top: 10, right: 30, bottom: 50, left: 50 },
+  width = 1100 - margin.left - margin.right,
+  height = 600 - margin.top - margin.bottom;
 
-const chartSvg = d3
-  .select("#chart")
+const svg = d3
+  .select("#visualization")
   .append("svg")
-  .attr("width", widthV3 + marginV3.left + marginV3.right)
-  .attr("height", heightV3 + marginV3.top + marginV3.bottom)
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
   .append("g")
-  .attr("transform", `translate(${marginV3.left}, ${marginV3.top})`);
-
-const chartTooltip = d3
-  .select("body")
-  .append("div")
-  .attr("class", "tooltipV3")
-  .style("opacity", 0);
+  .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
 d3.csv("data/gender-wage-gap-vs-gdp-per-capita.csv").then((data) => {
-  const countries = Array.from(new Set(data.map((d) => d.Entity))).sort();
-  console.log("countries", countries);
-  const select = d3.select("#countrySelect");
+  // Filter data for the year 2015
+  const data2015 = data.filter((d) => Number(d.Year) === 2015);
 
+  // Set up x and y scales
+  const x = d3
+    .scaleLinear()
+    .domain([0, d3.max(data2015, (d) => +d.GDP_per_capita)])
+    .range([0, width]);
 
-  select
-    .selectAll("option")
-    .data(countries)
-    .enter()
-    .append("option")
-    .text((d) => d)
-    .attr("value", (d) => d);
+  const y = d3
+    .scaleLinear()
+    .domain([0, d3.max(data2015, (d) => +d.gender_wage_gap)])
+    .range([height, 0]);
 
-  updateChart(countries[0]);
+  // Add axes
+  svg
+    .append("g")
+    .attr("transform", `translate(0, ${height})`)
+    .call(d3.axisBottom(x).ticks(10));
 
-  select.on("change", function () {
-    updateChart(this.value);
-  });
+  svg.append("g").call(d3.axisLeft(y));
 
-  function updateChart(country) {
-    const countryData = data
-      .filter((d) => d.Entity === country && Number(d.Year) === 2015);
+  // Define color scale based on continent
+  const myColor = d3
+    .scaleOrdinal()
+    .domain([
+      "Africa",
+      "Asia",
+      "Europe",
+      "North America",
+      "Oceania",
+      "South America",
+    ])
+    .range(d3.schemeSet2);
 
-    if (countryData.length === 0) {
-      chartSvg.selectAll("*").remove();
-      chartSvg
-        .append("text")
-        .attr("x", widthV3 / 2)
-        .attr("y", heightV3 / 2)
-        .attr("text-anchor", "middle")
-        .text("No data available for this country from 2015 onward.");
-      return;
-    }
+  // Tooltip setup
+  const tooltip = d3
+    .select("#visualization")
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "2px")
+    .style("border-radius", "5px")
+    .style("padding", "10px")
+    .style("position", "absolute");
 
-    const x = d3
-      .scaleLinear()
-      .domain(d3.extent(countryData, (d) => Number(d.Year)))
-      .range([0, widthV3]);
+  const mouseover = function (event, d) {
+    tooltip.style("opacity", 1);
+    d3.select(this).style("stroke", "black").style("opacity", 1);
+  };
 
-    const y = d3
-      .scaleLinear()
-      .domain([0, d3.max(countryData, (d) => Number(d.GDP_per_capita))])
-      .range([heightV3, 0]);
+  const mousemove = function (event, d) {
+    tooltip
+      .html(
+        `Country: ${d.Entity}<br>GDP/Capita: ${d.GDP_per_capita}<br>Gender Wage Gap: ${d.gender_wage_gap}%`
+      )
+      .style("left", event.pageX + 10 + "px")
+      .style("top", event.pageY - 30 + "px");
+  };
 
-    chartSvg.selectAll("g.axis").remove();
-    chartSvg
-      .append("g")
-      .attr("transform", `translate(0,${heightV3})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")))
-      .attr("class", "axis");
+  const mouseleave = function (event, d) {
+    tooltip.style("opacity", 0);
+    d3.select(this).style("stroke", "none").style("opacity", 0.8);
+  };
 
-    chartSvg.append("g").call(d3.axisLeft(y)).attr("class", "axis");
+  // Draw the scatter plot circles
+  svg
+    .append("g")
+    .selectAll("circle")
+    .data(data2015)
+    .join("circle")
+    .attr("class", "bubbles")
+    .attr("cx", (d) => x(+d.GDP_per_capita))
+    .attr("cy", (d) => y(+d.gender_wage_gap))
+    .attr("r", (d) => {
+      const population = +d.Population;
+      return population ? Math.sqrt(population) / 1000 : 5; // Scale population for circle radius
+    })
+    .style("fill", (d) => myColor(d.Continent))
+    .style("opacity", "0.7")
+    .attr("stroke", "white")
+    .on("mouseover", mouseover)
+    .on("mousemove", mousemove)
+    .on("mouseleave", mouseleave);
 
-    const line = d3
-      .line()
-      .x((d) => x(Number(d.Year)))
-      .y((d) => y(Number(d.GDP_per_capita)));
-
-    chartSvg.selectAll(".line").remove();
-    chartSvg
-      .append("path")
-      .datum(countryData)
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 2)
-      .attr("d", line)
-      .attr("class", "line");
-
-    chartSvg.selectAll("circle").remove();
-    chartSvg
-      .selectAll("circle")
-      .data(countryData)
-      .enter()
-      .append("circle")
-      .attr("r", 5)
-      .attr("cx", (d) => x(Number(d.Year)))
-      .attr("cy", (d) => y(Number(d.GDP_per_capita)))
-      .on("mouseover", (event, d) => {
-        console.log("d", d);
-        chartTooltip
-          .style("opacity", 1)
-          .html(`Year: ${d.Year}<br>GDP/Capita: ${d.GDP_per_capita || "n/a"}`)
-          .style("left", event.pageX + 10 + "px")
-          .style("top", event.pageY - 10 + "px")
-          .style("transition", "300ms");
-        d3.select(event.currentTarget).attr("r", 20);
-      })
-      .on("mouseout", (event, d) => {
-        chartTooltip.style("opacity", 0);
-        d3.select(event.currentTarget).attr("r", 5);
-      });
-  }
+  // Add country names
+  svg
+    .append("g")
+    .selectAll("text")
+    .data(data2015)
+    .join("text")
+    .attr("x", (d) => x(+d.GDP_per_capita))
+    .attr("y", (d) => y(+d.gender_wage_gap))
+    .text((d) => d.Entity)
+    .attr("font-size", "8px")
+    .attr("fill", (d) => myColor(d.Continent))
+    .attr("text-anchor", "middle")
+    .attr("dy", ".35em")
+    .style("pointer-events", "none");
 });
