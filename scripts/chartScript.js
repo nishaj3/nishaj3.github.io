@@ -1,13 +1,12 @@
 d3.csv('data/gender-wage-gap-vs-gdp-per-capita.csv').then(function(data) {
   // Filter data for the year 2015
   const filteredData = data.filter(d => d.Year === '2015');
-
+  
   const margin = { top: 20, right: 30, bottom: 40, left: 50 };
   const width = 960 - margin.left - margin.right;
   const height = 500 - margin.top - margin.bottom;
 
   const svg = d3.select('#plot3')
-      .select("#visualization")
       .append('svg')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
@@ -29,20 +28,7 @@ d3.csv('data/gender-wage-gap-vs-gdp-per-capita.csv').then(function(data) {
   svg.append('g')
       .call(d3.axisLeft(y));
 
-  const myColor = d3
-    .scaleOrdinal()
-    .domain([
-      "Africa",
-      "Asia",
-      "Europe",
-      "North America",
-      "Oceania",
-      "South America",
-    ])
-    .range(d3.schemeSet2);
-
   const tooltip = d3.select('body').append('div')
-      .select("#visualization")
       .attr('class', 'tooltip')
       .style('opacity', 0)
       .style('position', 'absolute')
@@ -53,17 +39,14 @@ d3.csv('data/gender-wage-gap-vs-gdp-per-capita.csv').then(function(data) {
       .style('padding', '10px');
 
   svg.append('g')
-      .selectAll('circle')
+      .selectAll('dot')
       .data(filteredData)
       .enter()
-      .join("circle")
-      .attr("class", "bubbles")
       .append('circle')
       .attr('cx', d => x(+d[' GDP_per_capita']))
       .attr('cy', d => y(+d[' gender_wage_gap']))
       .attr('r', 3)
-      .style('fill', (d) => myColor(d.continent))
-      .style("opacity", "0.7")
+      .style('fill', '#69b3a2')
       .on('mouseover', function(event, d) {
           tooltip.transition()
               .duration(200)
